@@ -1,0 +1,22 @@
+.env
+GEMINIAPI.txt
+venv/
+__pycache__/
+*.pyc
+logs/
+scratch/
+data/
+results/*.tmp
+.pytest_cache/
+.ruff_cache/
+runs/
+llm_cache/
+egg-info
+*.egg-info/
+results/*.bak
+.coverage
+coverage.xml
+htmlcov/
+
+# private working plan (the public design doc is docs/DESIGN.md)
+AgenticSDK.md

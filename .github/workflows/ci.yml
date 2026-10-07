@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: python -m pip install ruff
+      - run: ruff check .
+
+  test:
+    # No API keys are configured anywhere in this workflow: every LLM call in the tests is scripted,
+    # so the suite runs for anyone, with no secrets. The OS matrix covers the platform the sandbox
+    # (process-tree kill, stripped environment) was developed on (Windows) and the usual CI platform.
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    env:
+      AGENTICSDK_TRACING: "off"
+      PYTHONUTF8: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - run: python -m pip install -e ".[dev]"
+      - name: Cache frozen datasets
+        uses: actions/cache@v6
+        with:
+          path: data
+          key: data-${{ runner.os }}-${{ hashFiles('agenticsdk/harness/datasets.py') }}
+      - name: Download the datasets the tests use (OpenML)
+        run: python -m agenticsdk.harness.datasets --only credit_g moneyball
+      - name: Tests with coverage
+        run: python -m pytest --cov --cov-report=term --cov-report=xml
+      - name: Coverage summary
+        if: matrix.os == 'ubuntu-latest' && always()
+        shell: bash
+        run: |
+          if [ -f coverage.xml ]; then
+            python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import xml.etree.ElementTree as ET
+          r = ET.parse("coverage.xml").getroot()
+          print(f"### Test coverage: {float(r.get('line-rate')) * 100:.1f}% of lines")
+          PY
+          fi
+      - uses: actions/upload-artifact@v7
+        if: matrix.os == 'ubuntu-latest' && always()
+        with:
+          name: coverage-xml
+          path: coverage.xml
+          if-no-files-found: ignore

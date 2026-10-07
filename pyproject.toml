@@ -1,0 +1,57 @@
+[project]
+name = "agenticsdk"
+version = "0.1.0"
+description = "Critic-guided multi-agent ML engineering system + evaluation study"
+requires-python = ">=3.11"
+dependencies = [
+    "python-dotenv",
+    "pydantic>=2",
+    "pandas",
+    "numpy",
+    "scipy",
+    "scikit-learn",
+    "lightgbm",
+    "flaml[automl]",
+    "openml",
+    "pyarrow",
+    "langchain-google-genai",
+    "langgraph",
+    "langgraph-checkpoint-sqlite",
+    "psutil",
+    "mcp>=2",
+    "langfuse>=3",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-cov", "ruff"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["agenticsdk*"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["scratch", "venv", ".venv", "venv_*", "runs", "data", "llm_cache"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501"]  # long prompt strings are intentional; line length is advisory
+
+[tool.ruff.lint.isort]
+known-first-party = ["agenticsdk"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning", "ignore::UserWarning"]
+
+[tool.coverage.run]
+source = ["agenticsdk"]
+omit = ["*/__main__.py"]
+
+[tool.coverage.report]
+fail_under = 70
+exclude_lines = ["pragma: no cover", "if __name__ == .__main__.:", "raise NotImplementedError"]
