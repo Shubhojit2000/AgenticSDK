@@ -1,0 +1,40 @@
+Checkpoint 5 extension (2026-10-09): 2 more seeds (3, 4) on the same 3 datasets, memory off (A) vs memory on (B, store memory/v2: 15 cards, 9 datasets, own dataset excluded in code).
+Splits and baselines for seeds 3,4 were frozen for these 3 datasets only (results/baselines.json gained 18 keys; results/checkpoint0_table.txt is unchanged and still covers seeds 0-2).
+Seeds 0-2: A = pilot_m0_*, B = v2_m1_* (reported in checkpoint5_rerun.txt). Seeds 3-4: A = v3_m0_*, B = v3_m1_*. Arm C (empty store) was not run for seeds 3,4: quota.
+Scores are harness test scores (neg_log_loss for classifiers, R2 for california_housing); higher is better. Sign tests are two-sided on untied pairs.
+
+== NEW seeds 3,4 only (not used to design anything)  (n=6 pairs)
+A memory off  attempts  24  calls  121  tokens  287168  passed 6  exhausted 0
+B memory on   attempts  19  calls  106  tokens  265826  passed 5  exhausted 1
+B - A test : mean    -0.0117  up 2 down 4  sign-test p=0.688
+B - A att  : mean    -0.8333  up 2 down 4  sign-test p=0.688
+B - A tok  : mean -3557.0000  up 3 down 3  sign-test p=1.000
+B runs with a cited card: 4 of 6
+
+== all seeds 0-4  (n=15 pairs)
+A memory off  attempts  63  calls  311  tokens  747134  passed 13  exhausted 2
+B memory on   attempts  45  calls  267  tokens  662576  passed 14  exhausted 1
+B - A test : mean    +0.0018  up 7 down 8  sign-test p=1.000
+B - A att  : mean    -1.2000  up 3 down 10  sign-test p=0.092
+B - A tok  : mean -5637.2000  up 8 down 7  sign-test p=1.000
+B runs with a cited card: 10 of 15
+
+per-run (A | B)  test score, attempts
+credit_approval     s0   -0.2926 (att 6) |  -0.2828 (att 5)
+credit_approval     s1   -0.3372 (att 6) |  -0.3070 (att 1)
+credit_approval     s2   -0.3245 (att 3) |  -0.3242 (att 4)
+credit_approval     s3   -0.2379 (att 6) |  -0.2399 (att 4)
+credit_approval     s4   -0.3304 (att 4) |  -0.3245 (att 6)
+eucalyptus          s0   -0.7469 (att 3) |  -0.7399 (att 3)
+eucalyptus          s1   -0.7866 (att 6) |  -0.6966 (att 6)
+eucalyptus          s2   -0.7219 (att 6) |  -0.7438 (att 3)
+eucalyptus          s3   -0.6813 (att 4) |  -0.7304 (att 1)
+eucalyptus          s4   -0.7886 (att 3) |  -0.8061 (att 6)
+california_housing  s0    0.8542 (att 5) |   0.8540 (att 2)
+california_housing  s1    0.8499 (att 2) |   0.8397 (att 1)
+california_housing  s2    0.8453 (att 2) |   0.8378 (att 1)
+california_housing  s3    0.8686 (att 5) |   0.8521 (att 1)
+california_housing  s4    0.8393 (att 2) |   0.8483 (att 1)
+credit_approval mean test A/B: -0.3045 -0.2957
+eucalyptus mean test A/B: -0.7451 -0.7434
+california_housing mean test A/B: 0.8515 0.8464

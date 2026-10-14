@@ -1,0 +1,89 @@
+CHECKPOINT 7 - benchmark, ablations, statistics, failure taxonomy, unseen datasets   (2026-10-13)
+
+HEADLINE
+  The full system (A_full) reaches a normalized test score of 0.84 (95% CI 0.51 to 1.14, bootstrap over 12 development
+  datasets; median over datasets 0.96). It beats the default random forest on 12/12 datasets (sign test p < 0.001) and
+  default LightGBM on 11/12 (p = 0.006), and it ties the 60-second FLAML baseline: 6 won, 6 lost (p = 1.0). Strategy
+  escalation is the only ablation with a significant effect (+0.62 normalized points, p = 0.034) for 1.13x the cost.
+  Tools, memory and the multi-agent split did NOT show a significant benefit. On the 3 never-touched datasets the
+  system scores 0.83 (CI 0.44 to 1.05; 9 runs, none failed) and beats the random forest and LightGBM on 3/3 datasets
+  and FLAML on 2/3. None of the 750 benchmark attempts was flagged by the integrity monitor.
+
+SCOPE AND WHAT IS NOT CLAIMED
+  * 12 development datasets x 3 seeds x 5 variants = 180 runs, plus 9 unseen runs; 2,693 model calls in total.
+    Normalized score: 0 = default random forest (B0), 1 = the better of default LightGBM / FLAML, on the harness test split.
+  * Variant F (larger-model swap) was NOT run: gemini-3.8-flash allows about 20 calls per day and one run needs about 22.
+  * Two lanes, because the free quota is per model: credit_g, credit_approval, sick, churn, bank_marketing, car, diamonds
+    ran on gemini-3.5-flash-lite; eucalyptus, letter, abalone, moneyball, california_housing on gemini-3.1-flash-lite.
+    The dataset decides the lane, so every variant uses the same model on a given dataset and paired comparisons are
+    not confounded by the model; absolute scores and wall-clock times still mix the two models.
+  * 3 seeds per dataset cannot support per-dataset significance claims; tests are over datasets (n = 12).
+  * The normalized score is unstable when the baselines nearly tie (abalone 0.54 to 4.03 across variants, eucalyptus
+    -2.23 to 2.02); win rates against the baselines are the more reliable summary. Failed runs count as the worst score.
+  * The taxonomy labels on the sheet were drafted by Claude, not by an independent human (results/taxonomy/LABELLED_BY.txt);
+    kappa is the judge's agreement with them.
+
+TABLE 1 - variants (12 dev datasets x 3 seeds; python -m agenticsdk.stats summary)
+Benchmark summary (normalized test score: 0 = default random forest, 1 = best of default LightGBM / FLAML)
+variant           runs fail    norm [95% CI over datasets]  winB0  winB1  winB2 attempts   tokens   $/run   sec    $/pt
+A_full              36    1     0.836 [ 0.510,  1.144]    94%    86%    56%      3.6    48955  0.0088   297  0.0105
+B_no_escalation     36    1     0.007 [-0.663,  0.649]    69%    67%    47%      3.6    15008  0.0063   152  0.8379
+C_react             36    0     0.948 [ 0.158,  1.711]    86%    92%    61%      6.0    48759  0.0082   116  0.0087
+D_no_tools          36    0     1.014 [ 0.569,  1.465]    92%    89%    61%      3.7    26732  0.0060   171  0.0059
+E_no_memory         36    0     0.623 [ 0.134,  1.053]    78%    86%    61%      3.3    29160  0.0071   315  0.0113
+
+Paired comparisons against A_full (same dataset and seed; Wilcoxon over per-dataset means)
+  B_no_escalation    -0.754 (CI -1.476..-0.102)  36 pairs: 12W/23L/1T   datasets 4 better / 8 worse   Wilcoxon p=0.110
+  C_react            +0.208 (CI -0.655..+1.040)  36 pairs: 21W/15L/0T   datasets 10 better / 2 worse   Wilcoxon p=0.176
+  D_no_tools         +0.184 (CI -0.203..+0.582)  36 pairs: 15W/21L/0T   datasets 7 better / 5 worse   Wilcoxon p=0.622
+  E_no_memory        -0.162 (CI -0.760..+0.381)  36 pairs: 15W/21L/0T   datasets 5 better / 7 worse   Wilcoxon p=0.850
+
+TABLE 2 - datasets won / lost against the frozen baselines (python -m agenticsdk.stats baselines)
+Datasets won / lost against the frozen baselines (a dataset is won when the variant beats the baseline on more than half of its seeds); p = exact two-sided sign test over datasets
+
+variant                 B0 default RF B1 default LightGBM            B2 FLAML
+A_full                12W/ 0L p=0.000     11W/ 1L p=0.006      6W/ 6L p=1.000
+B_no_escalation        8W/ 4L p=0.388      8W/ 4L p=0.388      6W/ 6L p=1.000
+C_react               11W/ 1L p=0.006     11W/ 1L p=0.006      7W/ 5L p=0.774
+D_no_tools            11W/ 1L p=0.006     11W/ 1L p=0.006      7W/ 5L p=0.774
+E_no_memory            9W/ 3L p=0.146     11W/ 1L p=0.006      7W/ 5L p=0.774
+
+TABLE 3 - ablations against E_no_memory (tools, no memory, multi-agent graph); difference = variant minus E, normalized points
+  B_no_escalation  (remove strategy escalation): -0.62 (CI -1.15..-0.14), 11W/19L/6T over 36 pairs, datasets 3 better / 9 worse, Wilcoxon p = 0.034
+  C_react          (single ReAct agent instead of the graph): +0.32 (CI -0.18..+0.99), 24W/12L/0T over 36 pairs, datasets 10 better / 2 worse, Wilcoxon p = 0.151
+  D_no_tools       (remove the MCP tools): +0.39 (CI -0.15..+1.07), 21W/15L/0T over 36 pairs, datasets 7 better / 5 worse, Wilcoxon p = 0.622
+  A_full           (add cross-run memory): +0.16 (CI -0.38..+0.76), 21W/15L/0T over 36 pairs, datasets 7 better / 5 worse, Wilcoxon p = 0.850
+
+TABLE 4 - never-touched datasets, A_full only (adult, segment, health_insurance; 3 seeds each)
+Benchmark summary (normalized test score: 0 = default random forest, 1 = best of default LightGBM / FLAML)
+variant           runs fail    norm [95% CI over datasets]  winB0  winB1  winB2 attempts   tokens   $/run   sec    $/pt
+A_full               9    0     0.832 [ 0.444,  1.045]    89%   100%    67%      2.4    34931  0.0059   112  0.0070
+variant                 B0 default RF B1 default LightGBM            B2 FLAML
+A_full                 3W/ 0L p=0.250      3W/ 0L p=0.250      2W/ 1L p=1.000
+  Per run: adult 1.01 / 1.04 / 0.98; health_insurance 1.06 / 1.04 / 1.04; segment 0.59 / 1.58 / -0.83 (seed 2 needed 6 attempts).
+  With 3 datasets the smallest possible sign-test p is 0.25, so this table reports the scores and counts only. The baselines of
+  these three datasets were frozen on 2026-10-13 immediately before the run; no prompt or agent code was changed for them.
+
+TABLE 5 - failure taxonomy (273 failed attempts: invalid or below the weakest baseline on validation)
+Failure taxonomy over 273 failed attempts (100 labelled on the sheet, 7 judge labels corrected after review, 166 by the judge)
+  bad_strategy                   97   35.5%
+  timeout                        79   28.9%
+  data_handling_error            35   12.8%
+  api_hallucination              33   12.1%
+  no_output                      12    4.4%
+  other                          11    4.0%
+  import_or_rule_violation        4    1.5%
+  schema_mismatch                 2    0.7%
+100 hand-labelled attempts also labelled by the judge: raw agreement 86%, Cohen's kappa 0.82
+  Judge model: gemini-3.1-flash-lite. Seven judge labels of leakage_or_gaming were reviewed and corrected
+  (results/taxonomy/judge_corrections.csv): their own reasons only said "worse than the baselines"; the integrity monitor
+  flagged none of the 750 attempts. Judge labels are less reliable than the agreement figure suggests for the rare classes.
+
+READING THE ABLATIONS
+  * Escalation helps: against E_no_memory, which differs only by allowing strategy changes, the variant without it is worse
+    on 9 of 12 datasets (credit_approval, sick and eucalyptus fail badly: -2.02, -1.76, -1.40) and costs about 0.9x per run
+    ($0.0063 vs $0.0071).
+  * Removing the tools did not hurt (+0.39, p = 0.62) and was cheaper ($0.0060 vs $0.0071 per run); a single ReAct agent was
+    slightly better than the graph (+0.32, p = 0.15) but used 6.0 attempts per run against 3.3.
+  * Memory (A vs E) is +0.16 (p = 0.85) at 1.7x the tokens: no evidence that it helps, consistent with the Phase 5 pilot.
+  * Cost per point of normalized score: D 0.0059, C 0.0087, A 0.0105, E 0.0113 USD-equivalent; B 0.84 (its score is near 0).

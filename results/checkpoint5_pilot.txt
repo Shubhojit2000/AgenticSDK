@@ -1,0 +1,43 @@
+Checkpoint 5 pilot (2026-10-08): model gemini-3.5-flash-lite, --use-tools, datasets credit_approval/eucalyptus/california_housing x seeds 0,1,2
+m0 = memory off | m1 = memory on, store = cards of the OTHER datasets' m0 runs (own dataset excluded in code) | m2 = control: memory tool offered, store empty
+Scores are harness test scores (neg_log_loss for the classifiers, R2 for california_housing); higher is better. Tokens = recorded input+output tokens of all calls (cache hits included).
+
+arm  attempts calls tokens  passed  exhausted  first-attempt-valid
+m0         39   190  459966       7         2          6
+m1         24   152  379787       9         0          9
+m2         32   200  487984       7         2          7
+
+per-run test score  (m0 | m1 cards | m2 empty)   [higher is better]
+credit_approval     s0   -0.2926 (att 6) |  -0.3111 (att 2) |  -0.2631 (att 3)
+credit_approval     s1   -0.3372 (att 6) |  -0.3234 (att 5) |  -0.3353 (att 6)
+credit_approval     s2   -0.3245 (att 3) |  -0.3082 (att 3) |  -0.3041 (att 6)
+eucalyptus          s0   -0.7469 (att 3) |  -0.7720 (att 1) |  -0.7153 (att 4)
+eucalyptus          s1   -0.7866 (att 6) |  -0.8153 (att 5) |  -0.7934 (att 6)
+eucalyptus          s2   -0.7219 (att 6) |  -0.7305 (att 3) |  -0.7057 (att 3)
+california_housing  s0    0.8542 (att 5) |   0.8400 (att 1) |   0.8649 (att 2)
+california_housing  s1    0.8499 (att 2) |   0.8482 (att 3) |   0.8513 (att 1)
+california_housing  s2    0.8453 (att 2) |   0.8479 (att 1) |   0.8418 (att 1)
+m1 - m0 test : mean    -0.0071  up 3 down 6
+m1 - m0 att  : mean    -1.6667  up 1 down 7
+m1 - m0 tok  : mean -8908.7778  up 4 down 5
+m1 - m2 test : mean    -0.0184  up 2 down 7
+m1 - m2 att  : mean    -0.8889  up 1 down 6
+m1 - m2 tok  : mean -12021.8889  up 3 down 6
+m2 - m0 test : mean    +0.0113  up 7 down 2
+m2 - m0 att  : mean    -0.7778  up 2 down 5
+m2 - m0 tok  : mean +3113.1111  up 4 down 5
+
+credit_approval {'m0': -0.3181, 'm1': -0.3143, 'm2': -0.3008}
+eucalyptus {'m0': -0.7518, 'm1': -0.7726, 'm2': -0.7381}
+california_housing {'m0': 0.8498, 'm1': 0.8454, 'm2': 0.8527}
+
+Retrieval/citation log for m1:
+california_housing_s0 searches 1 datasets retrieved ['credit_approval', 'eucalyptus'] cited [[]]
+california_housing_s1 searches 1 datasets retrieved ['eucalyptus'] cited [[]]
+california_housing_s2 searches 1 datasets retrieved ['credit_approval', 'eucalyptus'] cited [[]]
+credit_approval_s0 searches 1 datasets retrieved ['eucalyptus'] cited [[]]
+credit_approval_s1 searches 2 datasets retrieved ['eucalyptus'] cited [[], []]
+credit_approval_s2 searches 2 datasets retrieved ['eucalyptus'] cited [[], []]
+eucalyptus_s0 searches 1 datasets retrieved ['credit_approval'] cited [[]]
+eucalyptus_s1 searches 3 datasets retrieved ['credit_approval'] cited [['credit_approval:pilot_m0_credit_approval_s0'], [], []]
+eucalyptus_s2 searches 1 datasets retrieved ['credit_approval'] cited [['credit_approval:pilot_m0_credit_approval_s2']]

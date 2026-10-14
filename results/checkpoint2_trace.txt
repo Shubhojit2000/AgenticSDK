@@ -1,0 +1,29 @@
+run: cp2_california
+
+== STRATEGY 1: linear + transforms_scaling
+   Train a regularized Ridge regression model with standardized features, polynomial transformations for spatial coordinates, and domain-specific ratios.
+   [feature] 3 feature steps
+      - Compute ratio features: bedrooms_per_room = totalBedrooms / totalRooms, rooms_per_household = totalRooms / households, population_per_household = population / households.
+      - Generate polynomial and interaction features of degree 2 for spatial coordinates longitude and latitude.
+      - Standardize all numeric features (including generated ratios and polynomials) using StandardScaler fitted exclusively on the training split.
+   [training] attempt 1: script written
+   [execute] attempt 1 (strategy 1): val 0.62344
+   [critic] RETRY_STRATEGY (llm): The linear Ridge regression model achieved an R^2 score of 0.6234, which is substantially lower than all frozen baselines (B0=0.7998, B1=0.8195, B2=0.8391). Linear models are too restrictive to capt
+
+== STRATEGY 2: gradient_boosting + aggregations_binning
+   Train a LightGBM regressor using spatial binning, domain ratios, and robust hyperparameter tuning to capture non-linear relationships in housing data.
+   [feature] 3 feature steps
+      - Compute domain-specific ratio features: rooms_per_household = totalRooms / households, bedrooms_per_room = totalBedrooms / totalRooms, population_per_household = population / households.
+      - Bin latitude and longitude into spatial grid cells using quantile-based discretization to capture regional geographic clusters.
+      - Handle potential division-by-zero or infinite values resulting from ratio features by replacing them with median values computed on the training set.
+   [training] attempt 2: script written
+   [execute] attempt 2 (strategy 2): val 0.06097
+   [critic] RETRY_CODE (llm): The validation score is 0.060967, which is catastrophically low and far below even the weakest baseline (0.799), indicating a severe bug in the code (such as incorrect target scaling, inverse transforma
+   [training] attempt 3: script written
+   [execute] attempt 3 (strategy 2): val 0.84937
+   [critic] PASS (llm): The validation score of 0.849367 exceeds all frozen baselines, including the FLAML AutoML baseline (0.839096). The combination of spatial binning, domain ratios, and LightGBM is highly effective for this data
+
+== REPORT: status=passed test=0.8549848050373181
+   normalized score (test, vs B0/max(B1,B2)): 1.202
+   baselines (test): {'B0': 0.805646772653063, 'B1': 0.8243925114720126, 'B2': 0.8467038093946011}
+   LLM: 10 API calls, 0 cache hits, 11070 in / 7493 out tokens

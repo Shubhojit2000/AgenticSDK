@@ -1,0 +1,46 @@
+Checkpoint 5 rerun (2026-10-09): model gemini-3.5-flash-lite, --use-tools, datasets credit_approval/eucalyptus/california_housing x seeds 0,1,2
+Change from the 2026-10-08 pilot: search_experience returns the best card per dataset (not the top-k cards, which seeds of one dataset crowded);
+the store holds 15 cards from 9 datasets (the 3 above, 3 seeds each, plus credit_g, sick, car, abalone, moneyball, churn, seed 0 each, all memory-off runs).
+The dataset being solved is excluded in code. Arms: m0 = memory off (pilot_m0_*, reused), m1 = memory on (v2_m1_*, new), m2 = memory tool, empty store (pilot_m2_*, reused).
+Scores are harness test scores (neg_log_loss for classifiers, R2 for california_housing); higher is better. The m0/m2 runs were not repeated, so their run-to-run noise (up to 0.03) is in every difference below.
+
+arm  attempts calls tokens  passed  exhausted  first-attempt-valid
+m0         39   190  459966       7         2          6
+m1         26   161  396750       9         0          7
+m2         32   200  487984       7         2          7
+
+per-run test score  (m0 | m1 cards | m2 empty)   [higher is better]
+credit_approval     s0   -0.2926 (att 6) |  -0.2828 (att 5) |  -0.2631 (att 3)
+credit_approval     s1   -0.3372 (att 6) |  -0.3070 (att 1) |  -0.3353 (att 6)
+credit_approval     s2   -0.3245 (att 3) |  -0.3242 (att 4) |  -0.3041 (att 6)
+eucalyptus          s0   -0.7469 (att 3) |  -0.7399 (att 3) |  -0.7153 (att 4)
+eucalyptus          s1   -0.7866 (att 6) |  -0.6966 (att 6) |  -0.7934 (att 6)
+eucalyptus          s2   -0.7219 (att 6) |  -0.7438 (att 3) |  -0.7057 (att 3)
+california_housing  s0    0.8542 (att 5) |   0.8540 (att 2) |   0.8649 (att 2)
+california_housing  s1    0.8499 (att 2) |   0.8397 (att 1) |   0.8513 (att 1)
+california_housing  s2    0.8453 (att 2) |   0.8378 (att 1) |   0.8418 (att 1)
+m1 - m0 test : mean    +0.0108  up 5 down 4
+m1 - m0 att  : mean    -1.4444  up 1 down 6
+m1 - m0 tok  : mean -7024.0000  up 5 down 4
+m1 - m2 test : mean    -0.0004  up 2 down 7
+m1 - m2 att  : mean    -0.6667  up 1 down 3
+m1 - m2 tok  : mean -10137.1111  up 5 down 4
+m2 - m0 test : mean    +0.0113  up 7 down 2
+m2 - m0 att  : mean    -0.7778  up 2 down 5
+m2 - m0 tok  : mean +3113.1111  up 4 down 5
+
+credit_approval {'m0': -0.3181, 'm1': -0.3047, 'm2': -0.3008}
+eucalyptus {'m0': -0.7518, 'm1': -0.7268, 'm2': -0.7381}
+california_housing {'m0': 0.8498, 'm1': 0.8438, 'm2': 0.8527}
+sign test m1 vs m0 (two-sided p): 1
+sign test m1 vs m2 (two-sided p): 0.1796875
+retrieval/citation log for m1 (v2)
+credit_approval 0 searches 2 cited [[], []]
+credit_approval 1 searches 1 cited [['credit_g:v2_m0_credit_g_s0']]
+credit_approval 2 searches 2 cited [['credit_g:v2_m0_credit_g_s0'], ['sick:v2_m0_sick_s0']]
+eucalyptus 0 searches 2 cited [['credit_g:v2_m0_credit_g_s0'], ['sick:v2_m0_sick_s0']]
+eucalyptus 1 searches 3 cited [['credit_approval:pilot_m0_credit_approval_s0'], ['sick:v2_m0_sick_s0'], []]
+eucalyptus 2 searches 1 cited [['sick:v2_m0_sick_s0']]
+california_housing 0 searches 1 cited [[]]
+california_housing 1 searches 1 cited [[]]
+california_housing 2 searches 1 cited [['moneyball:v2_m0_moneyball_s0']]

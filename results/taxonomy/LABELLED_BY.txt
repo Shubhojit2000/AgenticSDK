@@ -1,0 +1,15 @@
+Provenance of results/taxonomy/to_label.csv labels (written 2026-10-13).
+
+The 100 labels were drafted by Claude (the AI coding assistant that built this project), NOT by an independent human,
+from the full error text in each run's report.json, the harness messages and, for a few extreme valid-but-failed
+attempts, the script. They follow LABEL_GUIDE.txt. Rules used:
+  - exceeded the wall-clock limit                                   -> timeout
+  - reply without a code block                                      -> no_output
+  - nonexistent / removed library names, arguments or option values -> api_hallucination
+  - dtype, NaN, column, indexing or shape crashes in the data code  -> data_handling_error
+  - valid run below the weakest baseline, no error                  -> bad_strategy
+  - valid run far below baseline (credit_approval val <= -1.9, identical across variants) or a plain NameError /
+    syntax error with no identifiable root cause                    -> other
+The judge-vs-label kappa reported in the write-up is therefore agreement with these draft labels, not with
+independent human labels. The sheet is meant to be reviewed: change any label you disagree with and rerun
+`python -m agenticsdk.taxonomy kappa` and `report`. A blank copy of the sheet is kept in scratch/to_label.blank.csv.

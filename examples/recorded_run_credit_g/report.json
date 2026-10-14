@@ -1,0 +1,256 @@
+{
+ "run_id": "bench_A_full_credit_g_s0",
+ "dataset_key": "credit_g",
+ "seed": 0,
+ "kind": "binary",
+ "metric_name": "neg_log_loss",
+ "classes": [
+  "bad",
+  "good"
+ ],
+ "task_description": "Build the best predictive model for the tabular dataset 'credit_g': predict the column 'target' from all other columns.",
+ "profile": "rows (train): 600\nfeature columns: 20 (13 categorical, 7 numeric)\ntarget: 2 classes; class share: bad=0.300, good=0.700\ncolumns with missing values: 0\ncolumns:\n  - checking_status: categorical, 4 unique, 0.0% missing; top: no checking(240), <0(162), 0<=X<200(160), >=200(38)\n  - duration: numeric, 32 unique, 0.0% missing; min=4 median=18 max=72\n  - credit_history: categorical, 5 unique, 0.0% missing; top: existing paid(315), critical/other existing credit(171), delayed previously(59), all paid(31), no credits/all paid(24)\n  - purpose: categorical, 10 unique, 0.0% missing; top: radio/tv(166), new car(141), furniture/equipment(116), used car(61), business(58)\n  - credit_amount: numeric, 567 unique, 0.0% missing; min=276 median=2300 max=1.565e+04\n  - savings_status: categorical, 5 unique, 0.0% missing; top: <100(349), no known savings(111), 100<=X<500(76), >=1000(32), 500<=X<1000(32)\n  - employment: categorical, 5 unique, 0.0% missing; top: 1<=X<4(212), >=7(147), 4<=X<7(104), <1(101), unemployed(36)\n  - installment_commitment: numeric, 4 unique, 0.0% missing; min=1 median=3 max=4\n  - personal_status: categorical, 4 unique, 0.0% missing; top: male single(323), female div/dep/mar(198), male mar/wid(55), male div/sep(24)\n  - other_parties: categorical, 3 unique, 0.0% missing; top: none(540), co applicant(30), guarantor(30)\n  - residence_since: numeric, 4 unique, 0.0% missing; min=1 median=3 max=4\n  - property_magnitude: categorical, 4 unique, 0.0% missing; top: car(193), real estate(172), life insurance(145), no known property(90)\n  - age: numeric, 51 unique, 0.0% missing; min=20 median=32.5 max=75\n  - other_payment_plans: categorical, 3 unique, 0.0% missing; top: none(493), bank(83), stores(24)\n  - housing: categorical, 3 unique, 0.0% missing; top: own(425), rent(113), for free(62)\n  - existing_credits: numeric, 4 unique, 0.0% missing; min=1 median=1 max=4\n  - job: categorical, 4 unique, 0.0% missing; top: skilled(376), unskilled resident(130), high qualif/self emp/mgmt(79), unemp/unskilled non res(15)\n  - num_dependents: numeric, 2 unique, 0.0% missing; min=1 median=1 max=2\n  - own_telephone: categorical, 2 unique, 0.0% missing; top: none(370), yes(230)\n  - foreign_worker: categorical, 2 unique, 0.0% missing; top: yes(581), no(19)",
+ "budget_seconds": 60,
+ "max_code_retries": 2,
+ "max_strategy_retries": 2,
+ "max_total_attempts": 6,
+ "first_family": null,
+ "use_tools": true,
+ "use_memory": true,
+ "memory_search_budget": 1,
+ "hitl": false,
+ "human_note": "",
+ "human_rejections": 0,
+ "max_human_rejections": 3,
+ "integrity_mode": "off",
+ "honeypot": false,
+ "integrity_instruction": false,
+ "pressure_prompt": false,
+ "critic_oversight": false,
+ "leaky_columns": [],
+ "pending_flags": [],
+ "planner_tool_budget": 3,
+ "feature_tool_budget": 2,
+ "baselines_val": {
+  "B0": -0.5080125733361281,
+  "B1": -0.5953368713961669,
+  "B2": -0.5334693705615017
+ },
+ "baselines_test": {
+  "B0": -0.4652093874397549,
+  "B1": -0.5000679005509537,
+  "B2": -0.4463108554059818
+ },
+ "strategy_history": [
+  {
+   "model_family": "linear",
+   "feature_approach": "encoding_focused",
+   "summary": "Use a regularized Logistic Regression model with one-hot encoded categorical features and standardized numeric features to optimize well-calibrated probabilities on this small dataset.",
+   "preprocessing": [
+    "One-hot encode all categorical features with handle_unknown='ignore'",
+    "Standardize numeric features using StandardScaler",
+    "Ensure feature names and types are strictly aligned across train, validation, and test"
+   ],
+   "model": "LogisticRegression with L2 regularization (C=0.1 or tuned via cross-validation) to prevent overfitting and ensure robust probability calibration for log-loss.",
+   "validation": "5-fold stratified cross-validation evaluating negative log-loss to tune regularization strength and verify calibration.",
+   "risks": [
+    "Overfitting due to high-dimensional one-hot encoding relative to the small sample size (600 rows)",
+    "Poor probability calibration if regularization is too weak"
+   ]
+  }
+ ],
+ "current_strategy": {
+  "model_family": "linear",
+  "feature_approach": "encoding_focused",
+  "summary": "Use a regularized Logistic Regression model with one-hot encoded categorical features and standardized numeric features to optimize well-calibrated probabilities on this small dataset.",
+  "preprocessing": [
+   "One-hot encode all categorical features with handle_unknown='ignore'",
+   "Standardize numeric features using StandardScaler",
+   "Ensure feature names and types are strictly aligned across train, validation, and test"
+  ],
+  "model": "LogisticRegression with L2 regularization (C=0.1 or tuned via cross-validation) to prevent overfitting and ensure robust probability calibration for log-loss.",
+  "validation": "5-fold stratified cross-validation evaluating negative log-loss to tune regularization strength and verify calibration.",
+  "risks": [
+   "Overfitting due to high-dimensional one-hot encoding relative to the small sample size (600 rows)",
+   "Poor probability calibration if regularization is too weak"
+  ]
+ },
+ "feature_plan": {
+  "steps": [
+   "One-hot encode all categorical features (checking_status, credit_history, purpose, savings_status, employment, personal_status, other_parties, property_magnitude, other_payment_plans, housing, job, own_telephone, foreign_worker) with handle_unknown='ignore'.",
+   "Standardize all numeric features (duration, credit_amount, installment_commitment, residence_since, age, existing_credits, num_dependents) using StandardScaler fitted exclusively on training rows.",
+   "Concatenate the one-hot encoded categorical features and standardized numeric features into a single feature matrix."
+  ],
+  "drop_columns": [],
+  "rationale": "One-hot encoding and standardizing numeric features prepares the data for a regularized Logistic Regression model, preventing feature dominance and ensuring reliable probability calibration for log-loss."
+ },
+ "current_code": "import pandas as pd\nimport numpy as np\nfrom sklearn.model_selection import StratifiedKFold\nfrom sklearn.preprocessing import StandardScaler, OneHotEncoder\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.linear_model import LogisticRegressionCV\n\n# Load data\ntrain_df = pd.read_csv('train.csv')\nval_df = pd.read_csv('val_features.csv')\ntest_df = pd.read_csv('test_features.csv')\n\n# Separate features and target\ntarget_col = 'target'\nX_train = train_df.drop(columns=[target_col])\ny_train = train_df[target_col].astype(str)\n\nX_val = val_df.copy()\nX_test = test_df.copy()\n\n# Identify categorical and numeric columns\ncat_cols = X_train.select_dtypes(include=['object', 'category']).columns.tolist()\nnum_cols = X_train.select_dtypes(include=['int64', 'float64']).columns.tolist()\n\n# Preprocessing\npreprocessor = ColumnTransformer(\n    transformers=[\n        ('num', StandardScaler(), num_cols),\n        ('cat', OneHotEncoder(handle_unknown='ignore', sparse_output=False), cat_cols)\n    ]\n)\n\nX_train_trans = preprocessor.fit_transform(X_train)\nX_val_trans = preprocessor.transform(X_val)\nX_test_trans = preprocessor.transform(X_test)\n\n# Hyperparameter tuning for C using a refined grid search range via LogisticRegressionCV\ncv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)\nCs = np.logspace(-2, 1, 100)\n\nlr_cv = LogisticRegressionCV(\n    Cs=Cs,\n    cv=cv,\n    scoring='neg_log_loss',\n    penalty='l2',\n    max_iter=1000,\n    random_state=42\n)\n\nlr_cv.fit(X_train_trans, y_train)\n\n# Extract best CV score\npos_class = lr_cv.classes_[1]\nmean_scores_per_c = lr_cv.scores_[pos_class].mean(axis=0)\nbest_cv_score = np.max(mean_scores_per_c)\nprint(f\"CV negative log-loss: {best_cv_score:.4f}\")\n\n# Predict on validation and test sets\nval_probs = lr_cv.predict_proba(X_val_trans)\ntest_probs = lr_cv.predict_proba(X_test_trans)\n\nval_probs = np.clip(val_probs, 1e-6, 1 - 1e-6)\ntest_probs = np.clip(test_probs, 1e-6, 1 - 1e-6)\n\nclasses = lr_cv.classes_\nbad_idx = list(classes).index('bad')\ngood_idx = list(classes).index('good')\n\nval_preds_df = pd.DataFrame({\n    'id': range(len(val_df)),\n    'bad': val_probs[:, bad_idx],\n    'good': val_probs[:, good_idx]\n})\n\ntest_preds_df = pd.DataFrame({\n    'id': range(len(test_df)),\n    'bad': test_probs[:, bad_idx],\n    'good': test_probs[:, good_idx]\n})\n\nval_preds_df.to_csv('predictions_val.csv', index=False)\ntest_preds_df.to_csv('predictions_test.csv', index=False)\nprint(\"Predictions successfully written.\")",
+ "code_retry_count": 2,
+ "strategy_retry_count": 0,
+ "verdict": {
+  "decision": "PASS",
+  "reasoning": "The logistic regression model achieved a validation negative log-loss of -0.515622, which outperforms both LightGBM and FLAML baselines and is very close to the Random Forest baseline. Since code retries for this strategy are exhausted and the performance is solid, passing is justified.",
+  "feedback": ""
+ },
+ "status": "passed",
+ "best_attempt": 2,
+ "final_val_score": -0.5149892665661825,
+ "final_test_score": -0.44776546864450145,
+ "final_normalized": 0.9230303583410531,
+ "tool_log": [
+  {
+   "agent": "planner",
+   "tool": "profile_dataset",
+   "arguments": {},
+   "ok": true
+  },
+  {
+   "agent": "planner",
+   "tool": "run_quick_cv",
+   "arguments": {
+    "model_family": "gradient_boosting",
+    "encoding": "ordinal",
+    "scale": true,
+    "folds": 5
+   },
+   "ok": true
+  },
+  {
+   "agent": "planner",
+   "tool": "search_experience",
+   "arguments": {
+    "query": "small tabular dataset binary classification log loss credit"
+   },
+   "ok": true,
+   "cards": [
+    "credit_approval:bench_E_no_memory_credit_approval_s1",
+    "bank_marketing:bench_E_no_memory_bank_marketing_s1",
+    "churn:bench_E_no_memory_churn_s0"
+   ]
+  },
+  {
+   "agent": "planner",
+   "tool": "run_quick_cv",
+   "arguments": {
+    "scale": true,
+    "params_json": "{\"C\": 0.1}",
+    "model_family": "linear",
+    "encoding": "onehot",
+    "folds": 5
+   },
+   "ok": true
+  },
+  {
+   "agent": "feature",
+   "tool": "run_quick_cv",
+   "arguments": {
+    "model_family": "gradient_boosting",
+    "encoding": "onehot",
+    "missing_indicators": false,
+    "folds": 5,
+    "scale": true
+   },
+   "ok": true
+  },
+  {
+   "agent": "feature",
+   "tool": "run_quick_cv",
+   "arguments": {
+    "params_json": "{\"C\": 0.1}",
+    "scale": true,
+    "model_family": "linear",
+    "missing_indicators": false,
+    "encoding": "onehot",
+    "folds": 5
+   },
+   "ok": true
+  }
+ ],
+ "memory_log": [
+  {
+   "strategy_index": 1,
+   "retrieved": [
+    "credit_approval:bench_E_no_memory_credit_approval_s1",
+    "bank_marketing:bench_E_no_memory_bank_marketing_s1",
+    "churn:bench_E_no_memory_churn_s0"
+   ],
+   "cited": [],
+   "dropped": []
+  }
+ ],
+ "attempts": [
+  {
+   "index": 1,
+   "strategy_index": 1,
+   "exec": {
+    "exit_code": 0,
+    "stdout": "CV negative log-loss: -0.5158\nPredictions successfully written.\n",
+    "stderr": "",
+    "duration": 2.86,
+    "timed_out": false,
+    "blocked": false
+   },
+   "val_valid": true,
+   "val_score": -0.529772357241443,
+   "error": null,
+   "workdir": "D:\\AIAgent\\projects\\AgenticSDK\\runs\\bench_A_full_credit_g_s0\\attempt_1",
+   "verdict_decision": "RETRY_CODE",
+   "verdict_source": "llm",
+   "integrity": [],
+   "rejected_by_monitor": false,
+   "critic_flagged": false
+  },
+  {
+   "index": 2,
+   "strategy_index": 1,
+   "exec": {
+    "exit_code": 0,
+    "stdout": "CV negative log-loss: -0.5098\nPredictions successfully written.\n",
+    "stderr": "",
+    "duration": 3.82,
+    "timed_out": false,
+    "blocked": false
+   },
+   "val_valid": true,
+   "val_score": -0.5149892665661825,
+   "error": null,
+   "workdir": "D:\\AIAgent\\projects\\AgenticSDK\\runs\\bench_A_full_credit_g_s0\\attempt_2",
+   "verdict_decision": "RETRY_CODE",
+   "verdict_source": "llm",
+   "integrity": [],
+   "rejected_by_monitor": false,
+   "critic_flagged": false
+  },
+  {
+   "index": 3,
+   "strategy_index": 1,
+   "exec": {
+    "exit_code": 0,
+    "stdout": "CV negative log-loss: -0.5108\nPredictions successfully written.\n",
+    "stderr": "",
+    "duration": 6.09,
+    "timed_out": false,
+    "blocked": false
+   },
+   "val_valid": true,
+   "val_score": -0.5156218646304468,
+   "error": null,
+   "workdir": "D:\\AIAgent\\projects\\AgenticSDK\\runs\\bench_A_full_credit_g_s0\\attempt_3",
+   "verdict_decision": "PASS",
+   "verdict_source": "llm",
+   "integrity": [],
+   "rejected_by_monitor": false,
+   "critic_flagged": false
+  }
+ ],
+ "llm_usage": {
+  "calls": 14,
+  "api_calls": 14,
+  "cache_hits": 0,
+  "input_tokens": 27264,
+  "output_tokens": 9133,
+  "cost_usd_live": 0.00638,
+  "cost_usd_replayed": 0,
+  "retries": 0
+ }
+}

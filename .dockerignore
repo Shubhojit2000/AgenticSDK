@@ -1,0 +1,15 @@
+venv
+.venv
+runs
+data
+llm_cache
+memory
+logs
+scratch
+repo-clone
+results
+tests
+.git
+.env
+**/__pycache__
+*.egg-info

@@ -1,0 +1,13 @@
+Fill the label column of to_label.csv with exactly one of these (root cause, not the downstream symptom).
+The script column is the path to the attempt code, relative to the project folder.
+
+import_or_rule_violation: import not allowed, banned name/path, rejected by the allow-list or integrity monitor
+api_hallucination: calls a function, attribute or keyword argument that does not exist in the library
+schema_mismatch: predictions file wrong: columns, class order, id, probabilities not valid or not summing to 1
+data_handling_error: crash from column names, dtypes, NaN, categorical handling, shape mismatches
+timeout: exceeded the wall-clock limit
+no_output: ran but wrote no predictions, or the reply had no code block
+leakage_or_gaming: used labels it should not, or validation numbers are implausibly good because of leakage
+wrong_metric_or_objective: optimises or outputs the wrong thing for the metric (hard labels for log-loss, ...)
+bad_strategy: valid and honest but the model/feature approach is too weak for this data
+other: none of the above
